@@ -1,23 +1,24 @@
 {
-  "name": "wx-component-service",
+  "name": "strapi-middleware-wxopen",
   "version": "0.0.3",
   "author": "scout911",
   "license": "MIT",
-  "description": "用中间件的方式直接调用微信第三方平台服务",
-  "main": "./dist/index.js",
+  "description": "strapi用中间件的方式直接调用微信第三方平台服务",
+  "main": "./lib/index.js",
   "types": "./src/index.d.ts",
   "tags": [
     "微信第三方平台",
     "koa",
     "middleware",
-    "typescript"
+    "typescript",
+    "strapi"
   ],
   "scripts": {
     "build": "tsc"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/steve9II/wx-component-middleware"
+    "url": "https://github.com/fs2hero/wx-component-middleware"
   },
   "dependencies": {
     "crypto": "^1.0.1",
