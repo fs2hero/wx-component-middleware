@@ -28,10 +28,10 @@ export default class ComponetService {
     const encryptData = (xml2js(body, {compact: true}) as any).
         xml.Encrypt._cdata;
     const decodedXml = wxMsgCrypt.decode(encryptData);
-    const decodedTicket = (xml2js(decodedXml, {compact: true}) as any).
-        xml.ComponentVerifyTicket._cdata;
+    const decodedJson:any = xml2js(decodedXml, {compact: true});
+    const decodedTicket = decodedJson.xml.ComponentVerifyTicket._cdata;
     await this.setComponentVerifyTicket(decodedTicket);
-    return decodedTicket;
+    return decodedJson;
   }
 
   async setComponentVerifyTicket(data: any) {
