@@ -1,4 +1,5 @@
 import * as crypto from 'crypto';
+import { xml2js, js2xml } from 'xml-js';
 
 class PKCS7Crypt {
   block_size = 32;
@@ -41,8 +42,22 @@ class PrpEncrypt {
     this.token = config.token;
     this.customCrypt = config.customCrypt || new PKCS7Crypt();
   }
-  encode(msg: string) {
-    const {appid, key, iv} = this;
+
+  xml2object(xml) {
+    return xml2js(xml, { compact: true })
+  }
+
+  object2xml(obj) {
+    let xml = js2xml(obj, { compact: true, ignoreComment: true })
+    if (!xml) {
+      return xml;
+    }
+
+    return '<xml>' + xml + '</xml>'
+  }
+
+  encrypt(msg: string) {
+    const { appid, key, iv } = this;
     const randomBytes = crypto.randomBytes(this.RANDOM_BYTES_SIZE); // 生成指定大小的随机数据
 
     const msgLenBuf = Buffer.alloc(this.MSG_LENGTH_SIZE); // 申请指定大小的空间，存放消息体的大小
@@ -68,8 +83,8 @@ class PrpEncrypt {
    * 解密消息
    * @param {string} encryptedMsg 待解密的消息体
    */
-  decode(encryptedMsg: string) {
-    const {key, iv} = this;
+  decrypt(encryptedMsg: string) {
+    const { key, iv } = this;
     const encryptedMsgBuf = Buffer.from(encryptedMsg, 'base64'); // 将 base64 编码的数据转成 buffer
 
     const decipher = crypto.createDecipheriv(this.ALGORITHM, key, iv); // 创建解密器实例
@@ -91,15 +106,35 @@ class PrpEncrypt {
     return msgBuf.toString(); // 将消息体转成字符串，并返回数据
   }
 
-  genSign(params: any) {
-    const {token} = this;
-    const {timestamp, nonce, encrypt} = params;
+  genSign(timestamp, nonce, encrypt) {
+    const { token } = this;
+    // const {timestamp, nonce, encrypt} = params;
 
     const rawStr = [token, timestamp, nonce, encrypt].sort().join(''); // 原始字符串
     const signature = crypto.createHash('sha1').update(rawStr).digest('hex'); // 计算签名
 
     return signature;
   }
+
+  decryptMsg(msgSignature, timestamp, nonce, data) {
+    const msgEncrypt = data.Encrypt;
+    // if(data.ToUserName!=this.appID)throw new Error("ToUserName is invalid");
+    if (this.genSign(timestamp, nonce, msgEncrypt) !== msgSignature) throw new Error('msgSignature is not invalid');
+    const decryptedMessage = this.decrypt(msgEncrypt);
+    return this.xml2object(decryptedMessage);
+  };
+
+  encryptMsg(replyMsg, opts) {
+    const result: any = {};
+    const options = opts || {};
+    result.Encrypt = this.encrypt(replyMsg);
+    result.Nonce = options.nonce || parseInt((Math.random() * 100000000000).toString(), 10);
+    result.TimeStamp = options.timestamp || Date.now();
+
+    result.MsgSignature = this.genSign(result.TimeStamp, result.Nonce, result.Encrypt);
+
+    return this.object2xml(result);
+  };
 }
 
 export default PrpEncrypt;

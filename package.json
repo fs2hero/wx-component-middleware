@@ -21,10 +21,14 @@
     "url": "https://github.com/fs2hero/wx-component-middleware"
   },
   "dependencies": {
+    "bluebird": "^3.7.2",
     "crypto": "^1.0.1",
     "node-fetch": "^2.6.1",
+    "node-redis-warlock": "^1.0.0",
     "redis": "^3.0.2",
-    "xml-js": "^1.6.11"
+    "uuid": "^8.3.2",
+    "xml-js": "^1.6.11",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "@types/koa": "^2.0.48",

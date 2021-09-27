@@ -1,7 +1,7 @@
 import {createClient, ClientOpts, RedisClient} from 'redis';
 import {Store} from './types';
 class redisStore implements Store {
-  client: RedisClient;
+  public client: RedisClient;
 
   constructor(config: ClientOpts) {
     this.client = createClient(config);

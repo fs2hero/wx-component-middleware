@@ -2,6 +2,8 @@ import ComponentService from './helper/component-service';
 import tokenStore from './tokenStore/index';
 // import { ClientOpts } from 'redis';
 import xmlMiddleWare from './helper/xml.koa-middleware';
+import RedisLocker from './helper/utils/redisLocker';
+
 // interface WX_C_Config {
 //   componentAppId: string;
 //   componentAppSecret: string;
@@ -44,25 +46,26 @@ const wxComponentService =(strapi) => {
 
       if (
         typeof settings === 'undefined' ||
-        typeof settings.wxConfig === 'undefined'
+        typeof settings.wxConfig === 'undefined' || 
+        typeof settings.storeConfig === 'undefined'
       ) {
         strapi.log.error(settingErrorLog)
       } else {
         // Initialise WxOpen SDK
         // init({ ...settings, environment })
-        let store: any = new tokenStore.MemoryStore();
+        // let store: any = new tokenStore.MemoryStore();
 
-        if (settings.storeConfig) {
-          store = new tokenStore.RedisStore(settings.storeConfig);
-        }
+        let store = new tokenStore.RedisStore(settings.storeConfig);
+        let locker = new RedisLocker(store.client, debug, strapi.log)
 
-        const wxcCtx = new ComponentService(settings.wxConfig, store);
-        const wxcMiddleware = async (ctx, next) => {
-          ctx.wxc = wxcCtx;
-          await next();
-        };
+        const wxcCtx = new ComponentService(settings.wxConfig, store, locker);
+        strapi.wxc = wxcCtx;
+        // const wxcMiddleware = async (ctx, next) => {
+        //   ctx.wxc = wxcCtx;
+        //   await next();
+        // };
         strapi.app.use(xmlMiddleWare);
-        strapi.app.use(wxcMiddleware);
+        // strapi.app.use(wxcMiddleware);
 
         // IF debug mode is on, let the user know if middleware was initialised
         if (debug) {
