@@ -8,7 +8,6 @@ import {
 import {Store} from '../tokenStore/types';
 import WxMsgCrypt from './utils/wxMsgCrypt';
 import RedisLocker from './utils/redisLocker';
-import { timeStamp } from 'console';
 
 export default class ComponetService {
   componentAppId: string;
@@ -38,22 +37,15 @@ export default class ComponetService {
     return decodedJson;
   }
 
-  async decryptMsg(msgSignature, timestamp, nonce, data) {
-    const wxMsgCrypt = new WxMsgCrypt({
-      appid: this.componentAppId,
-      token: this.token,
-      encodingAESKey: this.encodingAESKey,
-    });
-    
-    return wxMsgCrypt.decryptMsg(msgSignature, timeStamp, nonce, data);
+  async decryptMsg(msgSignature, timestamp, nonce, body) {
+    const wxMsgCrypt = this.wxMsgCrypt
+    const encryptData = (wxMsgCrypt.xml2object(body) as any).
+        xml.Encrypt._cdata;
+    return wxMsgCrypt.decryptMsg(msgSignature, timestamp, nonce, {Encrypt: encryptData});
   }
 
   async encryptMsg(replyMsg, opts) {
-    const wxMsgCrypt = new WxMsgCrypt({
-      appid: this.componentAppId,
-      token: this.token,
-      encodingAESKey: this.encodingAESKey,
-    });
+    const wxMsgCrypt = this.wxMsgCrypt
     
     return wxMsgCrypt.encryptMsg(replyMsg, opts);
   }
