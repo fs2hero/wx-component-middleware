@@ -28,6 +28,7 @@ export default class ComponentController {
   debug: boolean;
   strapi: any;
   wxMsgCrypt: any;
+  fetchAuthorizerRefreshToken: (authorizerAppid) => Promise<string>;
 
   constructor(componetConfig: WX_C_Config, storeConfig: ClientOpts, strapi: any, debug: boolean) {
     Object.assign(this, componetConfig);
@@ -56,6 +57,10 @@ export default class ComponentController {
 
   getCrypto() {
     return this.wxMsgCrypt
+  }
+
+  setFetchAuthorizerRefreshTokenCb( cb: (authorizerAppid) => Promise<string>) {
+    this.fetchAuthorizerRefreshToken = cb
   }
 
   async setComponentVerifyTicket(body) {
@@ -103,18 +108,18 @@ export default class ComponentController {
     return url;
   }
 
-  async getApiInstance(authAppid: string, authorizer_refresh_token?: string, fetchAuthorizerRefreshToken?: (authorizerAppid) => Promise<string>) {
+  async getApiService(authAppid: string) {
     let apiService = this.apiServicePool.get(authAppid)
 
     if (!apiService) {
-      apiService = this.apiServiceFactory(authAppid, authorizer_refresh_token, fetchAuthorizerRefreshToken)
+      apiService = this.apiServiceFactory(authAppid)
       this.apiServicePool.set(authAppid, apiService)
     }
 
     return apiService;
   }
 
-  apiServiceFactory(authAppid: string, authorizer_refresh_token?: string, fetchAuthorizerRefreshToken?: (authorizerAppid) => Promise<string>) {
+  apiServiceFactory(authAppid: string) {
 
     const getComponentToken = async () => {
       let res = await this.getValue(COMPONENT_TOKEN_ID)
@@ -157,8 +162,9 @@ export default class ComponentController {
       let res = await this.getValue(key)
 
       if (!res) {
-        if (!authorizer_refresh_token && fetchAuthorizerRefreshToken) {
-          authorizer_refresh_token = await fetchAuthorizerRefreshToken(authorizerAppid)
+        let authorizer_refresh_token = ''
+        if (this.fetchAuthorizerRefreshToken) {
+          authorizer_refresh_token = await this.fetchAuthorizerRefreshToken(authorizerAppid)
         }
 
         if (authorizer_refresh_token) {
@@ -192,11 +198,6 @@ export default class ComponentController {
       getComponentVerifyTicket,
       acquiredLocker
     )
-
-    if (authorizer_refresh_token) {
-      const key = `${COMPONENT_AUTHORIZER_REFRESH_TOKEN_ID}:${authAppid}`
-      this.setValue(key, authorizer_refresh_token)
-    }
 
     return apiService;
   }

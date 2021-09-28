@@ -3,8 +3,8 @@ import { RedisClient } from 'redis';
 import { v4 as uuidv4 } from 'uuid'
 
 const PREFIX = 'WX-OPEN-SERVICE-LOCKER'
-const TTL = 5000;
-const MAX_ATTEMPTS = 4; // Max number of times to try setting the lock before erroring
+const TTL = 15000;
+const MAX_ATTEMPTS = 13; // Max number of times to try setting the lock before erroring
 const WAIT = 1000; // Time to wait before another attempt if lock already in place
 
 const consoleLogger = {
