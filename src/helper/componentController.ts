@@ -41,7 +41,7 @@ export default class ComponentController {
     this.apiServicePool = new ApiInstancePool()
     this.debug = debug
     this.strapi = strapi
-    this.wxMsgCrypt = API.WXBizMsgCrypt(this.componentAppId, this.token, this.encodingAESKey)
+    this.wxMsgCrypt = new API.WXBizMsgCrypt(this.componentAppId, this.token, this.encodingAESKey)
 
     Object.assign(this, componetConfig);
   }
