@@ -30,6 +30,8 @@ export default class ComponentController {
   wxMsgCrypt: any;
 
   constructor(componetConfig: WX_C_Config, storeConfig: ClientOpts, strapi: any, debug: boolean) {
+    Object.assign(this, componetConfig);
+
     let store: any = new tokenStore.MemoryStore();
 
     if (storeConfig) {
@@ -42,8 +44,6 @@ export default class ComponentController {
     this.debug = debug
     this.strapi = strapi
     this.wxMsgCrypt = new API.WXBizMsgCrypt(this.componentAppId, this.token, this.encodingAESKey)
-
-    Object.assign(this, componetConfig);
   }
 
   async setValue(key, value, expire = undefined) {
@@ -60,11 +60,11 @@ export default class ComponentController {
 
   async setComponentVerifyTicket(body) {
     const wxMsgCrypt = this.wxMsgCrypt
-    const encryptData = (wxMsgCrypt.xml2obj(body) as any).
-        xml.Encrypt._cdata;
+    const bodyObj = await wxMsgCrypt.xml2obj(body)
+    const encryptData = bodyObj.xml.Encrypt;
     const decodedXml = wxMsgCrypt.decrypt(encryptData);
-    const decodedJson:any = wxMsgCrypt.xml2obj(decodedXml);
-    const ticket = decodedJson.xml.ComponentVerifyTicket._cdata;
+    const decodedJson:any = await wxMsgCrypt.xml2obj(decodedXml);
+    const ticket = decodedJson.xml.ComponentVerifyTicket;
     await this.setValue(COMPONENT_VERIFY_TICKET_ID, ticket);
 
     return decodedJson;
