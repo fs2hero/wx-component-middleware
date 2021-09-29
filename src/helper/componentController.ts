@@ -83,6 +83,17 @@ export default class ComponentController {
     }
   }
 
+  async setAuthorizerRefreshToken( authAppId: string, authRefreshToken?:string) {
+    const key = `${COMPONENT_AUTHORIZER_REFRESH_TOKEN_ID}:${authAppId}`
+
+    if(!authRefreshToken) {
+      this.delValue(key)
+    }
+    else {
+      await this.setValue(key, authRefreshToken)
+    }
+  }
+
   async setComponentVerifyTicket(body) {
     const wxMsgCrypt = this.wxMsgCrypt
     const bodyObj = await wxMsgCrypt.xml2obj(body)
@@ -90,7 +101,10 @@ export default class ComponentController {
     const decodedXml = wxMsgCrypt.decrypt(encryptData);
     const decodedJson:any = await wxMsgCrypt.xml2obj(decodedXml);
     const ticket = decodedJson.xml.ComponentVerifyTicket;
-    await this.setValue(COMPONENT_VERIFY_TICKET_ID, ticket);
+
+    if(decodedJson.xml.InfoType === 'component_verify_ticket') {
+      await this.setValue(COMPONENT_VERIFY_TICKET_ID, ticket);
+    }
 
     return decodedJson;
   }

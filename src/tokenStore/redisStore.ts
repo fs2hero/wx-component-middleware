@@ -10,8 +10,7 @@ class redisStore implements Store {
   get(key: string) {
     return new Promise((resolve, reject) => {
       this.client.get(key, (err, reply) => {
-        resolve(reply);
-        reject(err);
+        !err ? resolve(reply) : reject(err);
       });
     });
   }
@@ -19,13 +18,11 @@ class redisStore implements Store {
     return new Promise((resolve, reject) => {
       if (expire) {
         this.client.setex(key, expire, value, (err, reply) => {
-          resolve(reply);
-          reject(err);
+          !err ? resolve(reply) : reject(err);
         });
       } else {
         this.client.set(key, value, (err, reply) => {
-          resolve(reply);
-          reject(err);
+          !err ? resolve(reply) : reject(err);
         });
       }
     });
@@ -33,8 +30,7 @@ class redisStore implements Store {
   delete(key: string) {
     return new Promise((resolve, reject) => {
       this.client.del(key, (err, reply) => {
-        resolve(reply);
-        reject(err);
+        !err ? resolve(reply) : reject(err);
       });
     });
   }
