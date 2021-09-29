@@ -49,7 +49,11 @@ export default class ComponentController {
   }
 
   async setValue(key, value, expire?:number) {
-    return this.store.set(key, value, expire)
+    let expire_in;
+    if(!!expire && expire > Date.now()) {
+      expire_in = expire - Date.now()
+    }
+    return this.store.set(key, value, expire_in)
   }
 
   async getValue(key) {
