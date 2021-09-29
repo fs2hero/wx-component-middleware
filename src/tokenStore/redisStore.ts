@@ -17,7 +17,7 @@ class redisStore implements Store {
   set(key: string, value: string, expire?: number) {
     return new Promise((resolve, reject) => {
       if (expire) {
-        this.client.setex(key, expire, value, (err, reply) => {
+        this.client.psetex(key, expire, value, (err, reply) => {
           !err ? resolve(reply) : reject(err);
         });
       } else {
