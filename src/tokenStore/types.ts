@@ -6,4 +6,5 @@
 export interface Store {
   get(key: string):Promise<any>
   set(key: string, value: string, expire?: number): Promise<any>;
+  delete(key: string):Promise<any>
 }

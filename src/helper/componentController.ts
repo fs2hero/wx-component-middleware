@@ -29,6 +29,7 @@ export default class ComponentController {
   strapi: any;
   wxMsgCrypt: any;
   fetchAuthorizerRefreshToken: (authorizerAppid) => Promise<string>;
+  requestSpeedHook:(authorizerAppid, time, url, options, error) => void;
 
   constructor(componetConfig: WX_C_Config, storeConfig: ClientOpts, strapi: any, debug: boolean) {
     Object.assign(this, componetConfig);
@@ -47,12 +48,16 @@ export default class ComponentController {
     this.wxMsgCrypt = new API.WXBizMsgCrypt(this.componentAppId, this.token, this.encodingAESKey)
   }
 
-  async setValue(key, value, expire = undefined) {
+  async setValue(key, value, expire?:number) {
     return this.store.set(key, value, expire)
   }
 
   async getValue(key) {
     return this.store.get(key)
+  }
+
+  async delValue(key) {
+    return this.store.delete(key)
   }
 
   getCrypto() {
@@ -61,6 +66,21 @@ export default class ComponentController {
 
   setFetchAuthorizerRefreshTokenCb( cb: (authorizerAppid) => Promise<string>) {
     this.fetchAuthorizerRefreshToken = cb
+  }
+
+  setRequestSpeedHook( hook: (authorizerAppid, time, url, options, error) => void) {
+    this.requestSpeedHook = hook
+  }
+
+  async setAuthorizerToken( authAppId: string, authToken?:string, expireTime?:number ) {
+    const key = `${COMPONENT_AUTHORIZER_TOKEN_ID}:${authAppId}`
+
+    if(!authToken) {
+      this.delValue(key)
+    }
+    else {
+      await this.setValue(key, JSON.stringify({ accessToken: authToken, expireTime }), expireTime)
+    }
   }
 
   async setComponentVerifyTicket(body) {
@@ -149,11 +169,11 @@ export default class ComponentController {
     };
 
     const saveToken = async (authorizerAppid, token) => {
-      const key = `${COMPONENT_AUTHORIZER_TOKEN_ID}:${authorizerAppid}`
       const accessToken = token.accessToken
       const expireTime = token.expireTime
 
-      await this.setValue(key, JSON.stringify({ accessToken, expireTime }), expireTime)
+      // await this.setValue(key, JSON.stringify({ accessToken, expireTime }), expireTime)
+      await this.setAuthorizerToken(authorizerAppid, accessToken, expireTime)
     };
 
     const getAuthorizerRefreshToken = async (authorizerAppid) => {
@@ -198,6 +218,7 @@ export default class ComponentController {
       getComponentVerifyTicket,
       acquiredLocker
     )
+    apiService.setRequestSpeedHook(this.requestSpeedHook)
 
     return apiService;
   }

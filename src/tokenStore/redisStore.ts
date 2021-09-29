@@ -30,6 +30,14 @@ class redisStore implements Store {
       }
     });
   }
+  delete(key: string) {
+    return new Promise((resolve, reject) => {
+      this.client.del(key, (err, reply) => {
+        resolve(reply);
+        reject(err);
+      });
+    });
+  }
 }
 
 export default redisStore;

@@ -13,6 +13,9 @@ class MemoryStore implements Store {
     async set(key: string, value: string, expire?: number) {
       return this.map.set(key, value);
     }
+    async delete(key: string) {
+      return this.map.delete(key);
+    }
 }
 
 export default MemoryStore;
