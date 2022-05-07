@@ -187,11 +187,16 @@ export default class ComponentController {
     };
 
     const saveToken = async (authorizerAppid, token) => {
-      const accessToken = token.accessToken
-      const expireTime = token.expireTime
 
-      // await this.setValue(key, JSON.stringify({ accessToken, expireTime }), expireTime)
-      await this.setAuthorizerToken(authorizerAppid, accessToken, expireTime)
+      if(!token) {
+        await this.setAuthorizerToken(authorizerAppid)
+      } else {
+        const accessToken = token.accessToken
+        const expireTime = token.expireTime
+
+        // await this.setValue(key, JSON.stringify({ accessToken, expireTime }), expireTime)
+        await this.setAuthorizerToken(authorizerAppid, accessToken, expireTime)
+      }
     };
 
     const getAuthorizerRefreshToken = async (authorizerAppid) => {
