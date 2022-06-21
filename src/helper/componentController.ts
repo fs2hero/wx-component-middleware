@@ -80,7 +80,7 @@ export default class ComponentController {
     const key = `${COMPONENT_AUTHORIZER_TOKEN_ID}:${authAppId}`
 
     if(!authToken) {
-      this.delValue(key)
+      await this.delValue(key)
     }
     else {
       await this.setValue(key, JSON.stringify({ accessToken: authToken, expireTime }), expireTime)
@@ -170,9 +170,14 @@ export default class ComponentController {
     };
 
     const saveComponentToken = async (componentToken) => {
-      const componentAccessToken = componentToken.componentAccessToken
-      const expireTime = componentToken.expireTime
-      await this.setValue(COMPONENT_TOKEN_ID, JSON.stringify({ componentAccessToken, expireTime }), expireTime)
+      if(!componentToken) {
+        await this.delValue(COMPONENT_TOKEN_ID)
+      }
+      else {
+        const componentAccessToken = componentToken.componentAccessToken
+        const expireTime = componentToken.expireTime
+        await this.setValue(COMPONENT_TOKEN_ID, JSON.stringify({ componentAccessToken, expireTime }), expireTime)
+      }
     };
 
     const getToken = async (authorizerAppid) => {
