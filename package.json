@@ -1,6 +1,6 @@
 {
   "name": "strapi-middleware-wxopen",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "author": "fs2hero",
   "license": "MIT",
   "description": "strapi用中间件的方式直接调用微信第三方平台服务",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "node-redis-warlock": "^1.0.0",
-    "open-weixin-api": "^1.1.11",
+    "open-weixin-api": "^1.1.12",
     "redis": "^3.0.2",
     "uuid": "^8.3.2"
   },
