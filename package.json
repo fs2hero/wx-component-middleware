@@ -1,6 +1,6 @@
 {
   "name": "strapi-middleware-wxopen",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "author": "fs2hero",
   "license": "MIT",
   "description": "strapi用中间件的方式直接调用微信第三方平台服务",
